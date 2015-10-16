@@ -48,6 +48,8 @@ class _ApplicationManagementKeywords(KeywordGroup):
         | Open Application | http://localhost:4723/wd/hub | platformName=Android | platformVersion=4.2.2 | deviceName=192.168.56.101:5555 | app=${CURDIR}/demoapp/OrangeDemoApp.apk | appPackage=com.netease.qa.orangedemo | appActivity=MainActivity |
         """
         desired_caps = kwargs
+        # runs adb: adb.exe -s 80717aef8315 shell "am start -S -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -f 0x10200000
+        #                   -n com.android.contacts/.activities.DialtactsActivity"
         application = webdriver.Remote(str(remote_url), desired_caps)
 
         self._debug('Opened application with session id %s' % application.session_id)
@@ -78,7 +80,30 @@ class _ApplicationManagementKeywords(KeywordGroup):
             self._cache.close()
         else:
             self._cache.switch(index_or_alias)
+        self._debug('Switched App to %s (previous App index: %s)' % (index_or_alias, old_index))
         return old_index
+
+    def start_activity(self, app_package, app_activity, **des_caps):
+        """Opens an arbitrary activity during a test. If the activity belongs to
+        another application, that application is started and the activity is opened.
+
+        This is an Android-only method.
+
+        :Args:
+        - app_package - The package containing the activity to start.
+        - app_activity - The activity to start.
+        - app_wait_package - Begin automation after this package starts (optional).
+        - app_wait_activity - Begin automation after this activity starts (optional).
+        - intent_action - Intent to start (optional).
+        - intent_category - Intent category to start (optional).
+        - intent_flags - Flags to send to the intent (optional).
+        - optional_intent_arguments - Optional arguments to the intent (optional).
+        - stop_app_on_reset - Should the app be stopped on reset (optional)?
+        """
+        driver = self._current_application()
+        # runs adb: am start -S -n com.encapsystems.dtmfd/.ma"
+        driver.start_activity(app_package, app_activity, **des_caps)
+
 
     def reset_application(self):
         """ Reset application """

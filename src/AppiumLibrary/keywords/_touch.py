@@ -44,7 +44,13 @@ class _TouchKeywords(KeywordGroup):
         el2 = self._element_find(end_locator, True, True)
         driver = self._current_application()
         driver.scroll(el1, el2)
-
+        
+    def scroll_to(self, locator):
+        """Scrolls to element"""
+        driver = self._current_application()
+        element = self._element_find(locator, True, True)
+        driver.execute_script("mobile: scrollTo", {"element": element.id})
+        
     def long_press(self, locator):
         """ Long press the element """
         driver = self._current_application()
@@ -58,3 +64,13 @@ class _TouchKeywords(KeywordGroup):
         el = self._element_find(locator, True, True)
         action = TouchAction(driver)
         action.tap(el).perform()
+        
+    def click_a_point(self, x=0, y=0):
+        """ Click on a point"""
+        self._info("Clicking on a point (%s,%s)." % (x,y))
+        driver = self._current_application()
+        action = TouchAction(driver)
+        try:
+            action.tap(x=float(x), y=float(y)).perform()
+        except:
+            assert False, "Can't click on a point at (%s,%s)" % (x,y)

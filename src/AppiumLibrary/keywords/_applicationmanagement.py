@@ -48,8 +48,9 @@ class _ApplicationManagementKeywords(KeywordGroup):
         | Open Application | http://localhost:4723/wd/hub | platformName=Android | platformVersion=4.2.2 | deviceName=192.168.56.101:5555 | app=${CURDIR}/demoapp/OrangeDemoApp.apk | appPackage=com.netease.qa.orangedemo | appActivity=MainActivity |
         """
         desired_caps = kwargs
-        # runs adb: adb.exe -s 80717aef8315 shell "am start -S -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -f 0x10200000
-        #                   -n com.android.contacts/.activities.DialtactsActivity"
+        # runs adb: adb.exe -s <UDID> shell "am start -S -a android.intent.action.MAIN
+        #                   -c android.intent.category.LAUNCHER -f 0x10200000
+        #                   -n com.netease.qa.orangedemo/MainActivity"
         application = webdriver.Remote(str(remote_url), desired_caps)
 
         self._debug('Opened application with session id %s' % application.session_id)

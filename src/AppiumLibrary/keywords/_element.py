@@ -1,9 +1,19 @@
 # -*- coding: utf-8 -*-
 
 from AppiumLibrary.locators import ElementFinder
-from keywordgroup import KeywordGroup
+from .keywordgroup import KeywordGroup
 from robot.libraries.BuiltIn import BuiltIn
 import ast
+import unicodedata
+from selenium.webdriver.remote.webelement import WebElement
+
+try:
+    basestring  # attempt to evaluate basestring
+    def isstr(s):
+        return isinstance(s, basestring)
+except NameError:
+    def isstr(s):
+        return isinstance(s, str)
 
 class _ElementKeywords(KeywordGroup):
     def __init__(self):
@@ -147,14 +157,14 @@ class _ElementKeywords(KeywordGroup):
 
     def element_name_should_be(self, locator, expected):
         element = self._element_find(locator, True, True)
-        if expected != element.get_attribute('name'):
+        if str(expected) != str(element.get_attribute('name')):
             raise AssertionError("Element '%s' name should be '%s' "
                                  "but it is '%s'." % (locator, expected, element.get_attribute('name')))
         self._info("Element '%s' name is '%s' " % (locator, expected))
 
     def element_value_should_be(self, locator, expected):
         element = self._element_find(locator, True, True)
-        if expected != element.get_attribute('value'):
+        if str(expected) != str(element.get_attribute('value')):
             raise AssertionError("Element '%s' value should be '%s' "
                                  "but it is '%s'." % (locator, expected, element.get_attribute('value')))
         self._info("Element '%s' value is '%s' " % (locator, expected))
@@ -309,13 +319,13 @@ class _ElementKeywords(KeywordGroup):
         driver = self._current_application()
         try:
             element = driver.find_element_by_name(name)
-        except Exception, e:
-            raise Exception, e
+        except Exception as e:
+            raise e
 
         try:
             element.click()
-        except Exception, e:
-            raise Exception, 'Cannot click the element with name "%s"' % name
+        except Exception as e:
+            raise 'Cannot click the element with name "%s"' % name
 
     def _find_elements_by_class_name(self, class_name):
         driver = self._current_application()
@@ -330,7 +340,7 @@ class _ElementKeywords(KeywordGroup):
                 index = int(index_or_name.split('=')[-1])
                 element = elements[index]
             except (IndexError, TypeError):
-                raise Exception, 'Cannot find the element with index "%s"' % index_or_name
+                raise 'Cannot find the element with index "%s"' % index_or_name
         else:
             found = False
             for element in elements:
@@ -339,7 +349,7 @@ class _ElementKeywords(KeywordGroup):
                     found = True
                     break
             if not found:
-                raise Exception, 'Cannot find the element with name "%s"' % index_or_name
+                raise 'Cannot find the element with name "%s"' % index_or_name
 
         return element
 
@@ -354,54 +364,63 @@ class _ElementKeywords(KeywordGroup):
         self._info("Clicking element '%s'." % element.text)
         try:
             element.click()
-        except Exception, e:
-            raise Exception, 'Cannot click the %s element "%s"' % (class_name, index_or_name)
+        except Exception as e:
+            raise 'Cannot click the %s element "%s"' % (class_name, index_or_name)
 
     def _element_clear_text_by_locator(self, locator):
         try:
             element = self._element_find(locator, True, True)
             element.clear()
-        except Exception, e:
+        except Exception as e:
             raise e
 
     def _element_input_text_by_locator(self, locator, text):
         try:
             element = self._element_find(locator, True, True)
             element.send_keys(text)
-        except Exception, e:
+        except Exception as e:
             raise e
 
     def _element_input_text_by_class_name(self, class_name, index_or_name, text):
         try:
             element = self._find_element_by_class_name(class_name, index_or_name)
-        except Exception, e:
-            raise Exception, e
+        except Exception as e:
+            raise e
 
         self._info("input text in element as '%s'." % element.text)
         try:
             element.send_keys(text)
-        except Exception, e:
-            raise Exception, 'Cannot input text "%s" for the %s element "%s"' % (text, class_name, index_or_name)
+        except Exception as e:
+            raise 'Cannot input text "%s" for the %s element "%s"' % (text, class_name, index_or_name)
 
     def _element_input_value_by_locator(self, locator, text):
         try:
             element = self._element_find(locator, True, True)
             element.set_value(text)
-        except Exception, e:
+        except Exception as e:
             raise e
 
     def _element_find(self, locator, first_only, required, tag=None):
         application = self._current_application()
-        elements = self._element_finder.find(application, locator, tag)
-        if required and len(elements) == 0:
-            raise ValueError("Element locator '" + locator + "' did not match any elements.")
-        if first_only:
-            if len(elements) == 0: return None
-            return elements[0]
+        if isstr(locator):
+            elements = self._element_finder.find(application, locator, tag)
+            if required and len(elements) == 0:
+                raise ValueError("Element locator '" + locator + "' did not match any elements.")
+            if first_only:
+                if len(elements) == 0: return None
+                return elements[0]
+        elif isinstance(locator, WebElement):
+            elements = locator
+        # do some other stuff here like deal with list of webelements
+        # ... or raise locator/element specific error if required
         return elements
 
     def _is_text_present(self, text):
-        return text in self.get_source()
+        text_norm = unicodedata.normalize(
+            'NFD', text).encode('ascii', 'ignore')
+        source_norm = unicodedata.normalize(
+            'NFD', self.get_source()).encode('ascii', 'ignore')
+        return text_norm in source_norm
 
     def _is_element_present(self, locator):
         application = self._current_application()

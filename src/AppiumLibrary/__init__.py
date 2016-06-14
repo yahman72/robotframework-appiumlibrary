@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-from keywords import *
-from version import VERSION
+from AppiumLibrary.keywords import *
+from AppiumLibrary.version import VERSION
 
 __version__ = VERSION
 
@@ -43,7 +43,7 @@ class AppiumLibrary(
     | xpath             | Click Element `|` xpath=//UIATableView/UIATableCell/UIAButton  | Matches with arbitrary XPath      |
     | class             | Click Element `|` class=UIAPickerWheel                         | Matches by class                  |
     | accessibility_id  | Click Element `|` accessibility_id=t                           | Accessibility options utilize.    |
-    | android           | Click Element `|` android=new UiSelector().description('Apps') | Matches by Android UI Automator   |
+    | android           | Click Element `|` android=UiSelector().description('Apps')     | Matches by Android UI Automator   |
     | ios               | Click Element `|` ios=.buttons().withName('Apps')              | Matches by iOS UI Automation      |
     | css               | Click Element `|` css=.green_button                            | Matches by css in webview         |
 

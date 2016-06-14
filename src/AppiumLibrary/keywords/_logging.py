@@ -9,9 +9,13 @@ from .keywordgroup import KeywordGroup
 class _LoggingKeywords(KeywordGroup):
 
     # Private
+    def _get_appium_log_level(self):
+        return BuiltIn().get_variable_value("${APPIUM_LOG_LEVEL}", default='WARN')
 
     def _debug(self, message):
-        logger.debug(message)
+        apm_ll = self._get_appium_log_level()
+        if apm_ll == 'DEBUG':
+            logger.debug(message)
 
     def _get_log_dir(self):
         variables = BuiltIn().get_variables()
@@ -24,7 +28,9 @@ class _LoggingKeywords(KeywordGroup):
         logger.info(message, True, False)
 
     def _info(self, message):
-        logger.info(message)
+        apm_ll = self._get_appium_log_level()
+        if apm_ll == 'INFO' or apm_ll == 'DEBUG':
+            logger.info(message)
 
     def _log(self, message, level='INFO'):
         level = level.upper()
@@ -45,4 +51,6 @@ class _LoggingKeywords(KeywordGroup):
         return items
 
     def _warn(self, message):
-        logger.warn(message)
+        apm_ll = self._get_appium_log_level()
+        if apm_ll == 'WARN' or apm_ll == 'INFO' or apm_ll == 'DEBUG':
+            logger.warn(message)

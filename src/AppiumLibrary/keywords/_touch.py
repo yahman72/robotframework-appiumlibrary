@@ -53,7 +53,7 @@ class _TouchKeywords(KeywordGroup):
         #driver.execute_script("mobile: scrollTo", {"element": element.id})
         # use Android specific implementation
         if self._is_android():
-            driver.find_element_by_android_uiautomator('new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().text("%s"))' % (locator))
+            driver.find_element_by_android_uiautomator('new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().textContains("%s"))' % (locator))
         else:
             element = self._element_find(locator, True, True)
             driver.execute_script("mobile: scrollTo", {"element": element.id})

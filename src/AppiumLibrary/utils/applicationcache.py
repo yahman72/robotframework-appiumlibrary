@@ -1,5 +1,5 @@
 from robot.utils import ConnectionCache
-
+import robot
 
 class ApplicationCache(ConnectionCache):
 
@@ -21,14 +21,25 @@ class ApplicationCache(ConnectionCache):
     def close(self):
         if self.current:
             application = self.current
-            application.quit()
-            self.current = self._no_current
-            self.current_index = None
-            self._closed.add(application)
+            try:
+                robot.api.logger.debug('Executing close_app() in Appium WebDriver, session: %s' % application.session_id)
+                application.close_app()
+                #application.quit()
+            except Exception as ex:
+                robot.api.logger.warn("Executing close_app() in Appium WebDriver failed: '%s'" % str(ex))
+            finally:
+                self.current = self._no_current
+                self.current_index = None
+                self._closed.add(application)
 
     def close_all(self):
         for application in self._connections:
             if application not in self._closed:
+                self.close()
+            robot.api.logger.debug('Executing quit() in Appium WebDriver, session: %s' % application.session_id)
+            try:
                 application.quit()
+            except Exception as ex:
+                robot.api.logger.warn("Executing quit() in Appium WebDriver failed: '%s'" % str(ex))
         self.empty_cache()
         return self.current

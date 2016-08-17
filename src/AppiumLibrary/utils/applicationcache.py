@@ -22,11 +22,13 @@ class ApplicationCache(ConnectionCache):
         if self.current:
             application = self.current
             try:
-                robot.api.logger.debug('Executing close_app() in Appium WebDriver, session: %s' % application.session_id)
-                application.close_app()
-                #application.quit()
+                #robot.api.logger.debug('Executing close_app() in Appium WebDriver, session: %s' % application.session_id)
+                #application.close_app()
+                robot.api.logger.debug('Executing quit() in Appium WebDriver, session: %s' % application.session_id)
+                application.quit()
             except Exception as ex:
-                robot.api.logger.warn("Executing close_app() in Appium WebDriver failed: '%s'" % str(ex))
+                robot.api.logger.warn("Executing quit() in Appium WebDriver failed: '%s'" % str(ex))
+                #robot.api.logger.warn("Executing close_app() in Appium WebDriver failed: '%s'" % str(ex))
             finally:
                 self.current = self._no_current
                 self.current_index = None
@@ -35,11 +37,10 @@ class ApplicationCache(ConnectionCache):
     def close_all(self):
         for application in self._connections:
             if application not in self._closed:
-                self.close()
-            robot.api.logger.debug('Executing quit() in Appium WebDriver, session: %s' % application.session_id)
-            try:
-                application.quit()
-            except Exception as ex:
-                robot.api.logger.warn("Executing quit() in Appium WebDriver failed: '%s'" % str(ex))
+                robot.api.logger.debug('Executing quit() in Appium WebDriver, session: %s' % application.session_id)
+                try:
+                    application.quit()
+                except Exception as ex:
+                    robot.api.logger.warn("Executing quit() in Appium WebDriver failed: '%s'" % str(ex))
         self.empty_cache()
         return self.current

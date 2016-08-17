@@ -1,4 +1,13 @@
-# force fork to be based on originals tag 1.3.5
+# 1.3.6 has backwards uncompatible changes:
+
+# force fork master to be based on originals tag 1.3.5
+git checkout master
 git remote update
 git reset --hard 1.3.5
+
+# get orig repo & merge the latest release in a new branch of the fork
+git remote add origRepo https://github.com/jollychang/robotframework-appiumlibrary
+git fetch origRepo
+git checkout -b latest_origRepo
+git merge origRepo/master
 
